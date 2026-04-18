@@ -1,15 +1,17 @@
 from flask import Flask, request, jsonify
-import openai
+from openai import openAI
 import os
 
 app = Flask(__name__)
+CLIENT = OpenAI ()
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-@app.route('/webhook', methods=['POST'])
+@app.route("/")
+def home():
+    return "Bot is live"
+    
+    @app.route('/webhook', methods=['POST'])
 def webhook():
     data = request.json
-    
     user_message = data.get("message", "")
     
     prompt = f"""
@@ -23,7 +25,7 @@ Reply in a simple, engaging, and helpful way.
 User message: {user_message}
 """
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completion.create(
         model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
@@ -31,11 +33,13 @@ User message: {user_message}
         ]
     )
 
-    ai_reply = response['choices'][0]['message']['content']
+    ai_reply = response.choices[0].message.content
 
     return jsonify({
         "ai_reply": ai_reply
     })
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
